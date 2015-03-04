@@ -21,16 +21,15 @@ import UIKit
 @objc(AAPLAppDelegate)
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
-    var window: UIWindow!
+    var window: UIWindow?
     
-    
-    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!)->Bool {
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         let rootViewController = UIViewController()
         rootViewController.view.backgroundColor = UIColor.blueColor()
-        window.rootViewController = rootViewController
-        window.makeKeyAndVisible()
+        window?.rootViewController = rootViewController
+        window?.makeKeyAndVisible()
         
         return true
     }

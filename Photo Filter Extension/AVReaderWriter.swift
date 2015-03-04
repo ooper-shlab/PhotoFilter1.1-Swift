@@ -152,7 +152,7 @@ class RWSampleBufferChannel: NSObject {
                             sampleBufferChannel!(self, didReadSampleBuffer:sampleBuffer, andMadeWriteSampleBuffer:managedWriterBuffer!)
                             success = self.adaptor!.appendPixelBuffer(managedWriterBuffer, withPresentationTime: presentationTime)
                             
-                        } else if let sampleBufferChannel = delegate?.sampleBufferChannel?
+                        } else if let sampleBufferChannel = delegate?.sampleBufferChannel
                             as ((RWSampleBufferChannel,didReadSampleBuffer:CMSampleBuffer)->Void)? {
                                 sampleBufferChannel(self, didReadSampleBuffer: sampleBuffer)
                                 success = self.assetWriterInput.appendSampleBuffer(sampleBuffer)
@@ -305,13 +305,13 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
         var audioTrack: AVAssetTrack? = nil
         let audioTracks = localAsset.tracksWithMediaType(AVMediaTypeAudio)
         if audioTracks.count > 0 {
-            audioTrack = (audioTracks[0] as AVAssetTrack)
+            audioTrack = (audioTracks[0] as! AVAssetTrack)
         }
         
         var videoTrack: AVAssetTrack? = nil
         let videoTracks = localAsset.tracksWithMediaType(AVMediaTypeVideo)
         if videoTracks.count > 0 {
-            videoTrack = (videoTracks[0] as AVAssetTrack)
+            videoTrack = (videoTracks[0] as! AVAssetTrack)
         }
         
         if audioTrack != nil {
@@ -339,7 +339,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             var formatDescription: CMFormatDescription? = nil
             let formatDescriptions = videoTrack!.formatDescriptions
             if formatDescriptions.count > 0 {
-                formatDescription = (formatDescriptions[0] as CMFormatDescription)
+                formatDescription = (formatDescriptions[0] as! CMFormatDescription)
             }
             
             // Grab track dimensions from format description
@@ -355,7 +355,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             if formatDescription != nil {
                 var cleanAperture: [NSObject: AnyObject]? = nil
                 let cleanApertureDescr = CMFormatDescriptionGetExtension(formatDescription!,
-                    kCMFormatDescriptionExtension_CleanAperture)?.takeUnretainedValue() as NSDictionary?
+                    kCMFormatDescriptionExtension_CleanAperture)?.takeUnretainedValue() as! NSDictionary?
                 if let cleanApertureDesc = cleanApertureDescr {
                     cleanAperture = [
                         AVVideoCleanApertureWidthKey :
@@ -370,7 +370,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
                 }
                 
                 var pixelAspectRatio: [NSObject: AnyObject]? = nil
-                let pixelAspectRatioDescr = CMFormatDescriptionGetExtension(formatDescription!, kCMFormatDescriptionExtension_PixelAspectRatio)?.takeUnretainedValue() as NSDictionary?
+                let pixelAspectRatioDescr = CMFormatDescriptionGetExtension(formatDescription!, kCMFormatDescriptionExtension_PixelAspectRatio)?.takeUnretainedValue() as! NSDictionary?
                 if let pixelAspectRatioDesc = pixelAspectRatioDescr {
                     pixelAspectRatio = [
                         AVVideoPixelAspectRatioHorizontalSpacingKey :

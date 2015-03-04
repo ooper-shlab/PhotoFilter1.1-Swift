@@ -81,7 +81,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         
         // Update the selection UI
         let item = availableFilterInfos.indexOfObjectPassingTest {filterInfo, idx, stop in
-            filterInfo[kFilterInfoFilterNameKey] as NSString == self.selectedFilterName
+            filterInfo[kFilterInfoFilterNameKey] as? NSString == self.selectedFilterName
         }
         if item != NSNotFound {
             let indexPath = NSIndexPath(forItem: item, inSection: 0)
@@ -95,7 +95,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     
     func canHandleAdjustmentData(adjustmentData: PHAdjustmentData!)->Bool {
         var result = adjustmentData.formatIdentifier == "com.example.apple-samplecode.photofilter"
-        result &= adjustmentData.formatVersion == "1.0"
+        result = result && adjustmentData.formatVersion == "1.0"
         return result
     }
     
@@ -117,7 +117,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         // Load adjustment data, if any
         let adjustmentData = self.contentEditingInput.adjustmentData
         if adjustmentData != nil {
-            self.selectedFilterName = NSKeyedUnarchiver.unarchiveObjectWithData(adjustmentData.data) as String
+            self.selectedFilterName = NSKeyedUnarchiver.unarchiveObjectWithData(adjustmentData.data) as! String
         }
         if selectedFilterName == nil {
             let defaultFilterName = "CISepiaTone"
@@ -248,16 +248,16 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let filterInfo = availableFilterInfos[indexPath.item] as NSDictionary
-        let displayName = filterInfo[kFilterInfoDisplayNameKey] as String
-        let previewImageName = filterInfo[kFilterInfoPreviewImageKey] as String
+        let filterInfo = availableFilterInfos[indexPath.item] as! NSDictionary
+        let displayName = filterInfo[kFilterInfoDisplayNameKey] as! String
+        let previewImageName = filterInfo[kFilterInfoPreviewImageKey] as! String
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoFilterCell", forIndexPath:indexPath) as UICollectionViewCell
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoFilterCell", forIndexPath:indexPath) as! UICollectionViewCell
         
-        let imageView = cell.viewWithTag(999) as UIImageView
+        let imageView = cell.viewWithTag(999) as! UIImageView
         imageView.image = UIImage(named: previewImageName)
         
-        let label = cell.viewWithTag(998) as UILabel
+        let label = cell.viewWithTag(998) as! UILabel
         label.text = displayName
         
         updateSelectionForCell(cell)
@@ -266,7 +266,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        selectedFilterName = availableFilterInfos[indexPath.item][kFilterInfoFilterNameKey] as String
+        selectedFilterName = availableFilterInfos[indexPath.item][kFilterInfoFilterNameKey] as! String
         updateFilter()
         
         updateSelectionForCell(collectionView.cellForItemAtIndexPath(indexPath))
@@ -281,11 +281,11 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     func updateSelectionForCell(cell: UICollectionViewCell!) {
         let isSelected = cell.selected
         
-        let imageView = cell.viewWithTag(999) as UIImageView
+        let imageView = cell.viewWithTag(999) as! UIImageView
         imageView.layer.borderColor = view.tintColor.CGColor
         imageView.layer.borderWidth = isSelected ? 2.0 : 0.0
         
-        let label = cell.viewWithTag(998) as UILabel
+        let label = cell.viewWithTag(998) as! UILabel
         label.textColor = isSelected ? view.tintColor : UIColor.whiteColor()
     }
     
