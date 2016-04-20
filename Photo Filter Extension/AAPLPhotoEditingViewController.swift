@@ -67,11 +67,11 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         
         // Add the background image and UIEffectView for the blur
         let effectView = UIVisualEffectView(effect: UIBlurEffect(style: .Dark))
-        effectView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        effectView.translatesAutoresizingMaskIntoConstraints = false
         view.insertSubview(effectView, aboveSubview:backgroundImageView)
         
-        let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[effectView]|", options: nil, metrics: nil, views: ["effectView": effectView])
-        let horizontalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[effectView]|", options: nil, metrics: nil, views: ["effectView": effectView])
+        let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[effectView]|", options: [], metrics: nil, views: ["effectView": effectView])
+        let horizontalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[effectView]|", options: [], metrics: nil, views: ["effectView": effectView])
         view.addConstraints(verticalConstraints)
         view.addConstraints(horizontalConstraints)
     }
@@ -116,9 +116,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         
         // Load adjustment data, if any
         let adjustmentData = self.contentEditingInput.adjustmentData
-        if adjustmentData != nil {
-            self.selectedFilterName = NSKeyedUnarchiver.unarchiveObjectWithData(adjustmentData.data) as! String
-        }
+        self.selectedFilterName = NSKeyedUnarchiver.unarchiveObjectWithData(adjustmentData.data) as! String?
         if selectedFilterName == nil {
             let defaultFilterName = "CISepiaTone"
             selectedFilterName = defaultFilterName
@@ -146,23 +144,22 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
             let orientation = self.contentEditingInput.fullSizeImageOrientation
             
             // Generate rendered JPEG data
-            var image = UIImage(contentsOfFile: url.path!)
+            var image = UIImage(contentsOfFile: url!.path!)
             image = transformedImage(image, withOrientation:orientation, usingFilter:ciFilter)
-            let renderedJPEGData = UIImageJPEGRepresentation(image, 0.9)
+            let renderedJPEGData = UIImageJPEGRepresentation(image!, 0.9)
             
             // Save JPEG data
-            var error: NSError? = nil
-            let success = renderedJPEGData.writeToURL(contentEditingOutput.renderedContentURL, options: .DataWritingAtomic, error: &error)
-            if success {
+            do {
+                try renderedJPEGData!.writeToURL(contentEditingOutput.renderedContentURL, options: .DataWritingAtomic)
                 completionHandler(contentEditingOutput)
-            } else {
-                NSLog("An error occured: %@", error!);
+            } catch let error as NSError {
+                NSLog("An error occured: %@", error);
                 completionHandler(nil)
             }
             
         case .Video:
             // Get AV asset
-            let avReaderWriter = AVReaderWriter(asset: contentEditingInput.avAsset)
+            let avReaderWriter = AVReaderWriter(asset: contentEditingInput.avAsset!)
             avReaderWriter.delegate = self
             
             // Save filtered video
@@ -201,7 +198,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     func updateFilter() {
         ciFilter = CIFilter(name: selectedFilterName)
         
-        var inputImage = CIImage(CGImage: self.inputImage.CGImage)
+        var inputImage = CIImage(CGImage: self.inputImage.CGImage!)
         let orientation = orientationFromImageOrientation(self.inputImage.imageOrientation)
         inputImage = inputImage.imageByApplyingOrientation(Int32(orientation))
         
@@ -211,20 +208,20 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     func updateFilterPreview() {
         let outputImage = ciFilter.outputImage
         
-        let cgImage = ciContext.createCGImage(outputImage, fromRect: outputImage.extent())
+        let cgImage = ciContext.createCGImage(outputImage!, fromRect: outputImage!.extent)
         let transformedImage = UIImage(CGImage: cgImage)
         
         filterPreviewView.image = transformedImage
     }
     
     func transformedImage(image: UIImage!, withOrientation orientation: Int32, usingFilter filter: CIFilter!)->UIImage! {
-        var inputImage = CIImage(CGImage: image.CGImage)
+        var inputImage = CIImage(CGImage: image.CGImage!)
         inputImage = inputImage.imageByApplyingOrientation(orientation)
         
         ciFilter.setValue(inputImage, forKey: kCIInputImageKey)
         let outputImage = ciFilter.outputImage
         
-        let cgImage = ciContext.createCGImage(outputImage, fromRect: outputImage.extent())
+        let cgImage = ciContext.createCGImage(outputImage!, fromRect: outputImage!.extent)
         let transformedImage = UIImage(CGImage: cgImage)
         
         return transformedImage
@@ -236,7 +233,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         var img = CIImage(CVPixelBuffer: inputBuffer)
         
         ciFilter.setValue(img, forKey: kCIInputImageKey)
-        img = ciFilter.outputImage
+        img = ciFilter.outputImage!
         
         ciContext.render(img, toCVPixelBuffer: outputBuffer)
     }
@@ -252,7 +249,7 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         let displayName = filterInfo[kFilterInfoDisplayNameKey] as! String
         let previewImageName = filterInfo[kFilterInfoPreviewImageKey] as! String
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoFilterCell", forIndexPath:indexPath) as! UICollectionViewCell
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoFilterCell", forIndexPath:indexPath) as UICollectionViewCell
         
         let imageView = cell.viewWithTag(999) as! UIImageView
         imageView.image = UIImage(named: previewImageName)
@@ -303,7 +300,6 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
         case .DownMirrored:  orientation = 4
         case .LeftMirrored:  orientation = 5
         case .RightMirrored: orientation = 7
-        default: break
         }
         return orientation
     }
@@ -311,7 +307,12 @@ UICollectionViewDelegate, AVReaderWriterAdjustDelegate {
     func imageForAVAsset(avAsset: AVAsset!, atTime time: NSTimeInterval)->UIImage! {
         let imageGenerator = AVAssetImageGenerator(asset: avAsset)
         imageGenerator.appliesPreferredTrackTransform = true
-        let posterImage = imageGenerator.copyCGImageAtTime(CMTimeMakeWithSeconds(time, 100), actualTime:nil, error:nil)
+        let posterImage: CGImage!
+        do {
+            posterImage = try imageGenerator.copyCGImageAtTime(CMTimeMakeWithSeconds(time, 100), actualTime:nil)
+        } catch _ {
+            posterImage = nil
+        }
         let image = UIImage(CGImage: posterImage)
         return image
     }

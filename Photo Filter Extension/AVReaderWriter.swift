@@ -17,14 +17,6 @@
 
 import AVFoundation
 import Foundation
-extension Boolean: BooleanLiteralConvertible {
-    public static func convertFromBooleanLiteral(value: BooleanLiteralType)->Boolean {
-        return value ? 1 : 0;
-    }
-    public init(booleanLiteral value:Bool) {
-        self = value ? 1 : 0;
-    }
-}
 
 import CoreMedia
 //Constants taken from <CoreMedia/CMFormatDescription.h>
@@ -88,8 +80,8 @@ class RWSampleBufferChannel: NSObject {
             // See the discussion under appendPixelBuffer:withPresentationTime: for advice on choosing a pixel format.
             //
             self.useAdaptor = useAdaptor
-            let adaptorAttrs: [NSObject: AnyObject] = [
-                kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA
+            let adaptorAttrs: [String: AnyObject] = [
+                kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)
             ]
             if useAdaptor {
                 adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: localAssetWriterInput,
@@ -104,7 +96,7 @@ class RWSampleBufferChannel: NSObject {
     // always called on the serialization queue
     private func callCompletionHandlerIfNecessary() {
         // Set state to mark that we no longer need to call the completion handler, grab the completion handler, and clear out the ivar
-        var oldFinished = finished
+        let oldFinished = finished
         finished = true
         
         if !oldFinished {
@@ -143,14 +135,13 @@ class RWSampleBufferChannel: NSObject {
                         
                         let sampleBufferChannel: ((RWSampleBufferChannel,didReadSampleBuffer:CMSampleBuffer,andMadeWriteSampleBuffer:CVPixelBuffer)->Void)? = delegate?.sampleBufferChannel
                         if self.adaptor != nil && sampleBufferChannel != nil {
-                            var writerBuffer: Unmanaged<CVPixelBuffer>?
-                            CVPixelBufferPoolCreatePixelBuffer(nil, self.adaptor!.pixelBufferPool,
+                            var writerBuffer: CVPixelBuffer?
+                            CVPixelBufferPoolCreatePixelBuffer(nil, self.adaptor!.pixelBufferPool!,
                                 &writerBuffer);
-                            let managedWriterBuffer = writerBuffer?.takeRetainedValue()
                             let presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
                             
-                            sampleBufferChannel!(self, didReadSampleBuffer:sampleBuffer, andMadeWriteSampleBuffer:managedWriterBuffer!)
-                            success = self.adaptor!.appendPixelBuffer(managedWriterBuffer, withPresentationTime: presentationTime)
+                            sampleBufferChannel!(self, didReadSampleBuffer: sampleBuffer, andMadeWriteSampleBuffer: writerBuffer!)
+                            success = self.adaptor!.appendPixelBuffer(writerBuffer!, withPresentationTime: presentationTime)
                             
                         } else if let sampleBufferChannel = delegate?.sampleBufferChannel
                             as ((RWSampleBufferChannel,didReadSampleBuffer:CMSampleBuffer)->Void)? {
@@ -191,7 +182,7 @@ typealias AVReaderWriterCompletionProc = NSError?->Void
 
 extension CMTime {
     var numeric: Bool {
-        return ((self.flags & (CMTimeFlags.Valid | CMTimeFlags.ImpliedValueFlagsMask)) == CMTimeFlags.Valid)
+        return self.flags.contains(.Valid) && !self.flags.intersect(.ImpliedValueFlagsMask).isEmpty
     }
 }
 
@@ -258,16 +249,40 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
                         let fm = NSFileManager()
                         let localOutputPath = localOutputURL.path!
                         if fm.fileExistsAtPath(localOutputPath) {
-                            success = fm.removeItemAtPath(localOutputPath, error:&localError)
+                            do {
+                                try fm.removeItemAtPath(localOutputPath)
+                                success = true
+                            } catch let error as NSError {
+                                localError = error
+                                success = false
+                            } catch {
+                                fatalError()
+                            }
                         }
                     }
                     
                     // Set up the AVAssetReader and AVAssetWriter, then begin writing samples or flag an error
                     if success {
-                        success = self.setUpReaderAndWriterReturningError(&localError)
+                        do {
+                            try self.setUpReaderAndWriterReturningError()
+                            success = true
+                        } catch let error as NSError {
+                            localError = error
+                            success = false
+                        } catch {
+                            fatalError()
+                        }
                     }
                     if success {
-                        success = self.startReadingAndWritingReturningError(&localError)
+                        do {
+                            try self.startReadingAndWritingReturningError()
+                            success = true
+                        } catch let error as NSError {
+                            localError = error
+                            success = false
+                        } catch {
+                            fatalError()
+                        }
                     }
                     
                     if !success {
@@ -277,27 +292,14 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             }
     }
     
-    private func setUpReaderAndWriterReturningError(outError: NSErrorPointer)->Bool {
-        var localError: NSError? = nil
+    private func setUpReaderAndWriterReturningError() throws {
         let localAsset = asset
         let localOutputURL = outputURL
         
         // Create asset reader and asset writer
-        assetReader = AVAssetReader(asset: localAsset, error:&localError)
-        if localError != nil {
-            if outError != nil {
-                outError.memory = localError
-            }
-            return false
-        }
+        assetReader = try AVAssetReader(asset: localAsset)
         
-        assetWriter = AVAssetWriter(URL: localOutputURL, fileType:AVFileTypeQuickTimeMovie, error: &localError)
-        if localError != nil {
-            if outError != nil {
-                outError.memory = localError
-            }
-            return false
-        }
+        assetWriter = try AVAssetWriter(URL: localOutputURL, fileType:AVFileTypeQuickTimeMovie)
         
         // Create asset reader outputs and asset writer inputs for the first audio track and first video track of the asset
         
@@ -305,21 +307,21 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
         var audioTrack: AVAssetTrack? = nil
         let audioTracks = localAsset.tracksWithMediaType(AVMediaTypeAudio)
         if audioTracks.count > 0 {
-            audioTrack = (audioTracks[0] as! AVAssetTrack)
+            audioTrack = (audioTracks[0] as AVAssetTrack)
         }
         
         var videoTrack: AVAssetTrack? = nil
         let videoTracks = localAsset.tracksWithMediaType(AVMediaTypeVideo)
         if videoTracks.count > 0 {
-            videoTrack = (videoTracks[0] as! AVAssetTrack)
+            videoTrack = (videoTracks[0] as AVAssetTrack)
         }
         
         if audioTrack != nil {
             // Decompress to Linear PCM with the asset reader
-            let output = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: nil)
+            let output = AVAssetReaderTrackOutput(track: audioTrack!, outputSettings: nil)
             assetReader.addOutput(output)
             
-            let input = AVAssetWriterInput(mediaType: audioTrack?.mediaType, outputSettings: nil)
+            let input = AVAssetWriterInput(mediaType: audioTrack!.mediaType, outputSettings: nil)
             assetWriter.addInput(input)
             
             // Create and save an instance of AAPLRWSampleBufferChannel, which will coordinate the work of reading and writing sample buffers
@@ -328,11 +330,11 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
         
         if videoTrack != nil {
             // Decompress to ARGB with the asset reader
-            let decompSettings: [NSObject: AnyObject] = [
-                kCVPixelBufferPixelFormatTypeKey : kCVPixelFormatType_32BGRA,
-                kCVPixelBufferIOSurfacePropertiesKey : [NSObject: AnyObject]()
+            let decompSettings: [String: AnyObject] = [
+                kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA),
+                kCVPixelBufferIOSurfacePropertiesKey as String: [NSObject: AnyObject]()
             ]
-            let output = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: decompSettings)
+            let output = AVAssetReaderTrackOutput(track: videoTrack!, outputSettings: decompSettings)
             assetReader.addOutput(output)
             
             // Get the format description of the track, to fill in attributes of the video stream that we don't want to change
@@ -355,7 +357,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             if formatDescription != nil {
                 var cleanAperture: [NSObject: AnyObject]? = nil
                 let cleanApertureDescr = CMFormatDescriptionGetExtension(formatDescription!,
-                    kCMFormatDescriptionExtension_CleanAperture)?.takeUnretainedValue() as! NSDictionary?
+                    kCMFormatDescriptionExtension_CleanAperture) as! NSDictionary?
                 if let cleanApertureDesc = cleanApertureDescr {
                     cleanAperture = [
                         AVVideoCleanApertureWidthKey :
@@ -370,7 +372,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
                 }
                 
                 var pixelAspectRatio: [NSObject: AnyObject]? = nil
-                let pixelAspectRatioDescr = CMFormatDescriptionGetExtension(formatDescription!, kCMFormatDescriptionExtension_PixelAspectRatio)?.takeUnretainedValue() as! NSDictionary?
+                let pixelAspectRatioDescr = CMFormatDescriptionGetExtension(formatDescription!, kCMFormatDescriptionExtension_PixelAspectRatio) as! NSDictionary?
                 if let pixelAspectRatioDesc = pixelAspectRatioDescr {
                     pixelAspectRatio = [
                         AVVideoPixelAspectRatioHorizontalSpacingKey :
@@ -393,7 +395,7 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             }
             
             // Compress to H.264 with the asset writer
-            var videoSettings: [NSObject: AnyObject] = [
+            var videoSettings: [String: AnyObject] = [
                 AVVideoCodecKey: AVVideoCodecH264,
                 AVVideoWidthKey: trackDimensions.width,
                 AVVideoHeightKey: trackDimensions.height,
@@ -409,24 +411,16 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             // Create and save an instance of AAPLRWSampleBufferChannel, which will coordinate the work of reading and writing sample buffers
             videoSampleBufferChannel = RWSampleBufferChannel(assetReaderOutput:output, assetWriterInput:input, useAdaptor:true)
         }
-        
-        return true
     }
     
-    private func startReadingAndWritingReturningError(outError: NSErrorPointer)->Bool {
+    private func startReadingAndWritingReturningError() throws {
         // Instruct the asset reader and asset writer to get ready to do work
         if !assetReader.startReading() {
-            if outError != nil {
-                outError.memory = assetReader.error
-            }
-            return false
+            throw assetReader.error!
         }
         
         if !assetWriter.startWriting() {
-            if outError != nil {
-                outError.memory = assetWriter.error
-            }
-            return false
+            throw assetWriter.error!
         }
         
         
@@ -458,7 +452,6 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
         // Set up a callback for when the sample writing is finished
         dispatch_group_notify(dispatchGroup, _serializationQueue) {
             var finalSuccess = true
-            var finalError: NSError? = nil
             
             if self.cancelled {
                 self.assetReader.cancelReading()
@@ -466,7 +459,6 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             } else {
                 if self.assetReader.status == AVAssetReaderStatus.Failed {
                     finalSuccess = false
-                    finalError = self.assetReader.error
                 }
                 
                 if finalSuccess {
@@ -478,8 +470,6 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
             }
             
         }
-        
-        return true
     }
     
     private func cancel(sender: AnyObject!) {
@@ -518,37 +508,31 @@ class AVReaderWriter: NSObject, RWSampleBufferChannelDelegate {
     }
     
     
-    private func sampleBufferChannel(sampleBufferChannel: RWSampleBufferChannel, didReadSampleBuffer sampleBuffer:CMSampleBuffer!) {
+    @objc private func sampleBufferChannel(sampleBufferChannel: RWSampleBufferChannel, didReadSampleBuffer sampleBuffer:CMSampleBuffer) {
         // Calculate progress (scale of 0.0 to 1.0)
         let progress = progressOfSampleBufferInTimeRange(sampleBuffer, self.timeRange)
         
         _progressProc(Float(progress * 100.0))
         
         // Grab the pixel buffer from the sample buffer, if possible
-        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        
-        if imageBuffer != nil && CFGetTypeID(imageBuffer) == CVPixelBufferGetTypeID() {
-            //pixelBuffer = (CVPixelBufferRef)imageBuffer;
-            //No need to convert CVImageBuffer to CVPixelBuffer in Xcode 6.1final
-            delegate?.adjustPixelBuffer?(imageBuffer /*pixelBuffer*/)
+        if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+        where CFGetTypeID(imageBuffer) == CVPixelBufferGetTypeID() {
+            delegate?.adjustPixelBuffer?(imageBuffer)
         }
     }
     
-    private func sampleBufferChannel(sampleBufferChannel: RWSampleBufferChannel!,
-        didReadSampleBuffer sampleBuffer: CMSampleBuffer!,
-        andMadeWriteSampleBuffer sampleBufferForWrite: CVPixelBuffer!) {
+    @objc private func sampleBufferChannel(sampleBufferChannel: RWSampleBufferChannel,
+        didReadSampleBuffer sampleBuffer: CMSampleBuffer,
+        andMadeWriteSampleBuffer sampleBufferForWrite: CVPixelBuffer) {
             // Calculate progress (scale of 0.0 to 1.0)
             let progress = progressOfSampleBufferInTimeRange(sampleBuffer, self.timeRange)
             
             _progressProc(Float(progress * 100.0))
             
             // Grab the pixel buffer from the sample buffer, if possible
-            let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-            
-            if imageBuffer != nil && CFGetTypeID(imageBuffer) == CVPixelBufferGetTypeID()
-                && sampleBufferForWrite != nil  {
-                    //No need to convert CVImageBuffer to CVPixelBuffer in Xcode 6.1final
-                    delegate?.adjustPixelBuffer?(imageBuffer/*pixelBuffer*/, toOutputBuffer: sampleBufferForWrite)
+            if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+            where CFGetTypeID(imageBuffer) == CVPixelBufferGetTypeID() {
+                    delegate?.adjustPixelBuffer?(imageBuffer, toOutputBuffer: sampleBufferForWrite)
             }
     }
     

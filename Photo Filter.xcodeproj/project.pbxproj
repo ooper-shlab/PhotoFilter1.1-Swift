@@ -21,6 +21,7 @@
 		D73CA9D31997C0850091937E /* AVReaderWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7790D211995A27900F7F2DC /* AVReaderWriter.swift */; };
 		D73CA9D61997C4A00091937E /* AAPLPhotoEditingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73CA9D51997C4A00091937E /* AAPLPhotoEditingViewController.swift */; };
 		D73CA9D9199909470091937E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73CA9D8199909470091937E /* AppDelegate.swift */; };
+		D7FA149A1B5161400061310D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D7FA14991B5161400061310D /* LaunchScreen.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,19 +59,12 @@
 		A7700FBD19703F890078C471 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		A7FF7A4B1932B56400039327 /* Photo Filter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Photo Filter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7FF7A4F1932B56400039327 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A7FF7A501932B56400039327 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		A7FF7A521932B56400039327 /* AAPLAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLAppDelegate.h; sourceTree = "<group>"; };
-		A7FF7A531932B56400039327 /* AAPLAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLAppDelegate.m; sourceTree = "<group>"; };
 		A7FF7A551932B56400039327 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		A7FF7A731932B59D00039327 /* com.example.apple-samplecode.photofilter.Photo-Filter.Photo-Filter-Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "com.example.apple-samplecode.photofilter.Photo-Filter.Photo-Filter-Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7FF7A751932B59D00039327 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
 		A7FF7A771932B59D00039327 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		A7FF7A7B1932B59D00039327 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A7FF7A7C1932B59D00039327 /* AAPLPhotoEditingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLPhotoEditingViewController.h; sourceTree = "<group>"; };
-		A7FF7A7D1932B59D00039327 /* AAPLPhotoEditingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLPhotoEditingViewController.m; sourceTree = "<group>"; };
 		A7FF7A8A1932B64300039327 /* MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
-		A7FF7A8C1932B6A300039327 /* AAPLAVReaderWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLAVReaderWriter.h; sourceTree = "<group>"; };
-		A7FF7A8D1932B6A300039327 /* AAPLAVReaderWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLAVReaderWriter.m; sourceTree = "<group>"; };
 		A7FF7A8F1932B6B900039327 /* Filters.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Filters.plist; sourceTree = "<group>"; };
 		A7FF7A911932B6D800039327 /* chrome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = chrome.jpg; sourceTree = "<group>"; };
 		A7FF7A921932B6D800039327 /* instant.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = instant.jpg; sourceTree = "<group>"; };
@@ -82,6 +76,7 @@
 		D73CA9D51997C4A00091937E /* AAPLPhotoEditingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AAPLPhotoEditingViewController.swift; sourceTree = "<group>"; };
 		D73CA9D8199909470091937E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D7790D211995A27900F7F2DC /* AVReaderWriter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVReaderWriter.swift; sourceTree = "<group>"; };
+		D7FA14991B5161400061310D /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,7 +124,7 @@
 		A7FF7A4D1932B56400039327 /* Photo Filter */ = {
 			isa = PBXGroup;
 			children = (
-				D73CA9DA19990E910091937E /* Unused Files */,
+				D7FA14991B5161400061310D /* LaunchScreen.xib */,
 				D73CA9D8199909470091937E /* AppDelegate.swift */,
 				A7FF7A551932B56400039327 /* Images.xcassets */,
 				A7FF7A4E1932B56400039327 /* Supporting Files */,
@@ -157,7 +152,6 @@
 		A7FF7A791932B59D00039327 /* Photo Filter Extension */ = {
 			isa = PBXGroup;
 			children = (
-				D73CA9DB19990ECC0091937E /* Unused Files */,
 				D73CA9D51997C4A00091937E /* AAPLPhotoEditingViewController.swift */,
 				A7FF7A8A1932B64300039327 /* MainInterface.storyboard */,
 				D7790D211995A27900F7F2DC /* AVReaderWriter.swift */,
@@ -186,27 +180,6 @@
 				A7FF7A951932B6D800039327 /* sepia.jpg */,
 			);
 			name = "Preview Images";
-			sourceTree = "<group>";
-		};
-		D73CA9DA19990E910091937E /* Unused Files */ = {
-			isa = PBXGroup;
-			children = (
-				A7FF7A521932B56400039327 /* AAPLAppDelegate.h */,
-				A7FF7A531932B56400039327 /* AAPLAppDelegate.m */,
-				A7FF7A501932B56400039327 /* main.m */,
-			);
-			name = "Unused Files";
-			sourceTree = "<group>";
-		};
-		D73CA9DB19990ECC0091937E /* Unused Files */ = {
-			isa = PBXGroup;
-			children = (
-				A7FF7A7C1932B59D00039327 /* AAPLPhotoEditingViewController.h */,
-				A7FF7A7D1932B59D00039327 /* AAPLPhotoEditingViewController.m */,
-				A7FF7A8C1932B6A300039327 /* AAPLAVReaderWriter.h */,
-				A7FF7A8D1932B6A300039327 /* AAPLAVReaderWriter.m */,
-			);
-			name = "Unused Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -255,7 +228,8 @@
 		A7FF7A431932B56400039327 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				TargetAttributes = {
 					A7FF7A4A1932B56400039327 = {
 						CreatedOnToolsVersion = 6.0;
@@ -288,6 +262,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7FA149A1B5161400061310D /* LaunchScreen.xib in Resources */,
 				A7FF7A561932B56400039327 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -363,6 +338,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -430,6 +406,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = "Photo Filter/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.photofilter.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -443,6 +420,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = "Photo Filter/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.photofilter.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -458,6 +436,7 @@
 				INFOPLIST_FILE = "Photo Filter Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "${PRODUCT_NAME}";
 				PRODUCT_NAME = "com.example.apple-samplecode.photofilter.Photo-Filter.$(TARGET_NAME:rfc1034identifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -471,6 +450,7 @@
 				INFOPLIST_FILE = "Photo Filter Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				METAL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "${PRODUCT_NAME}";
 				PRODUCT_NAME = "com.example.apple-samplecode.photofilter.Photo-Filter.$(TARGET_NAME:rfc1034identifier)";
 				SKIP_INSTALL = YES;
 			};
